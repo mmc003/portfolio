@@ -10,7 +10,7 @@ import Contact from "./views/Contact";
 const App: React.FC = () => {
   return (
     <div className="app-container">
-      <Router>
+      <Router basename="/portfolio">
         <Navbar />
         <div className="views">
           <Routes>
