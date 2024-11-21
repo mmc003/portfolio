@@ -14,7 +14,7 @@ const App: React.FC = () => {
         <Navbar />
         <div className="views">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/portfolio" element={<Home />} />
             <Route path="/mywork" element={<MyWork />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
