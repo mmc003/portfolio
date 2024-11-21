@@ -30,6 +30,7 @@
   margin: 0;
   padding: 0;
   gap: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .navbar-options li a {
@@ -41,4 +42,45 @@
 
 .navbar-options li a:hover {
   color: grey;
+}
+/* Hamburger menu (hidden by default) */
+.menu-icon {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 4px;
+}
+
+.menu-icon .bar {
+  width: 25px;
+  height: 3px;
+  background-color: black;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .menu-icon {
+    display: flex; /* Show hamburger icon */
+  }
+
+  .navbar-options {
+    display: none; /* Hide menu by default */
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    background-color: lightgray;
+    flex-direction: column;
+    width: 150px;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .navbar-options.active {
+    display: flex; /* Show menu when active */
+  }
+
+  .navbar-options li {
+    margin: 10px 0;
+  }
 }

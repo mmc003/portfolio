@@ -1,24 +1,41 @@
-import React from "react";
+import React, {useState} from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 const Navbar: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">Michael Chu</div>
-      <ul className="navbar-options">
-        <li>
-          <Link to="/">Home</Link>
-        </li>
+      <div className="menu-icon" onClick={toggleMenu}>
+        {/* Hamburger icon */}
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
 
+      <ul className={`navbar-options ${isMenuOpen ? "active" : ""}`}>
         <li>
-          <Link to="/mywork">My Work</Link>
+          <Link to="/" onClick={closeMenu}>
+            Home
+          </Link>
         </li>
         <li>
-          <Link to="/about">About</Link>
+          <Link to="/mywork" onClick={closeMenu}>My Work</Link>
         </li>
         <li>
-          <Link to="/contact">Contact</Link>
+          <Link to="/about" onClick={closeMenu}>About</Link>
+        </li>
+        <li>
+          <Link to="/contact" onClick={closeMenu}>Contact</Link>
         </li>
       </ul>
     </nav>
@@ -26,3 +43,4 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
