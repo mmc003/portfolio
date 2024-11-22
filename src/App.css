@@ -4,17 +4,49 @@
 
 .views {
   text-align: center;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: Optima, sans-serif;
+  font-size: x-large;
+  font-weight: normal;
+  padding: 5%;
+  padding-top: 0;
+}
+
+.views .subtitle {
+  padding-bottom: 1%;
+}
+
+.body {
+  text-align: left;
+  margin: 0 auto;
+  font-size:medium;
+  width: 50%;
+  justify-content: center;
+  line-height: 1.6;
+}
+.indented {
+  text-indent: 2em;
+}
+
+.email-link {
+  color: #0077cc; /* Adjust the color as needed */
+  text-decoration: none; /* Remove underline */
+}
+.email-link:hover {
+  text-decoration: underline; /* Add underline on hover */
 }
 
 @media (max-width: 768px) {
   .views {
-    padding: 0 5%;
+    padding-top: 0;
   }
 
-  .views h2 {
+  .views .subtitle {
     text-align: left;
     width: 75%;
-    font-size: larger;
+    font-size: large;
+    padding-bottom: 2%;
+  }
+  .body{
+    width: 90%;
   }
 }
