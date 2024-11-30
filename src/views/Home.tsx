@@ -6,7 +6,7 @@ import homepage from "../imgs/9684-1_07.jpg"
 const Home: React.FC = () => {
   return (
     <div>
-      <div className="subtitle">Home</div>
+      {/* <div className="subtitle">Home</div> */}
       <img src={homepage} alt="" className="homepage-img" />
     </div>
   );

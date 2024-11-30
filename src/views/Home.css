@@ -1,5 +1,11 @@
 .homepage-img {
-    max-width: 60%;
-    /* margin: auto; */
+   height: 80vh;
 
+}
+
+@media (max-width: 768px) {
+.homepage-img{
+    height: auto;
+    width: 90vw;
+}
 }
