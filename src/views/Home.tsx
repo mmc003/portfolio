@@ -1,7 +1,7 @@
 import React from "react";
 import "./Home.css"
 
-import homepage from "../imgs/9684-1_07.jpg"
+import homepage from "../homepage/000032190025.jpg"
 
 const Home: React.FC = () => {
   return (

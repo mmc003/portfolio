@@ -1,35 +1,19 @@
-.gallery-grid {
+.recents-container {
   display: flex;
-  flex-wrap: wrap; /* Allow wrapping of items to fit smaller screens */
-  justify-content: center; /* Center-align images horizontally */
-  gap: 10px; /* Space between images */
+  flex-direction: column;
+  /* justify-content:start; */
+  gap: 3rem;
+  align-items: flex-start;
 }
 
-.gallery-image {
-  width: calc(
-    33.33% - 10px
-  ); /* Make each image take up 1/3 of the row, minus the gap */
-  max-width: 300px; /* Optional: Limit image size */
-  height: auto; /* Maintain aspect ratio */
-  /* border: 1px solid #ddd; */
-
-  object-fit: contain;
-  transition: transform 0.2s ease-in-out;
-}
-/* 
-.gallery-image:hover {
-  transform: scale(1.05);
-} */
-
-/* Responsive design for smaller screens */
-@media (max-width: 768px) {
-  .gallery-image {
-    width: calc(50% - 10px); /* Two images per row */
-  }
+.gallery {
+  display: flex;
+  padding: 1rem 0;
+  gap: 2rem;
 }
 
-@media (max-width: 480px) {
-  .gallery-image {
-    width: 100%; /* One image per row */
-  }
+.gallery-title {
+  font-size: 1rem;
+  width: 200px; /* Ensure a consistent width for titles */
+  text-align: right;
 }

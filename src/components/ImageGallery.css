@@ -1,0 +1,55 @@
+/* recents.css */
+
+.gallery-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-width: 2000px;
+  margin: 0 auto;
+}
+
+.gallery-image {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+}
+
+.arrow-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  color: rgb(0, 0, 0);
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 8px;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.arrow-button:hover {
+  color: rgba(141, 141, 141, 0.9);
+}
+
+.arrow-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.arrow-button:first-of-type {
+  left: -30px;
+}
+
+.arrow-button:last-of-type {
+  right: -30px;
+}
+
+.image-counter {
+    margin-top: 10px;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: bold;
+    text-align: left;
+  }

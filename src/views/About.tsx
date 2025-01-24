@@ -32,6 +32,8 @@ const About: React.FC = () => {
       <div className="body">
         <br />
         business inquries: <a href="mailto:mingyangmchu@gmail.com" className="email-link">mingyangmchu@gmail.com</a>
+        <br />
+        instagram: <a href="https://www.instagram.com/grainyboii?igsh=NTc4MTIwNjQ2YQ%3D%3D&utm_source=qr" className="email-link">click me!</a>
       </div>
     </div>
   );

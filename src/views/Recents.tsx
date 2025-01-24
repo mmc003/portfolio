@@ -1,31 +1,44 @@
 import React from "react";
 import "./Recents.css";
+import ImageGallery from "../components/ImageGallery";
 
-import img1 from "../imgs/9684-1_03.jpg";
-import img2 from "../imgs/9684-1_07.jpg";
-import img3 from "../imgs/9684-1_06.jpg";
-import img4 from "../imgs/9684-1_10.jpg";
-import img5 from "../imgs/9684-1_17.jpg";
-import img6 from "../imgs/9684-1_20.jpg";
-import img7 from "../imgs/9684-1_21.jpg";
-import img8 from "../imgs/9684-1_22.jpg";
-import img9 from "../imgs/9684-1_23.jpg";
-import img10 from "../imgs/9684-1_25.jpg";
+const importAll = (requireContext: ReturnType<WebpackRequire["context"]>) =>
+  requireContext.keys().map(requireContext);
 
 const Recents: React.FC = () => {
-  const imgs = [img1, img2, img3, img4, img6, img5, img7, img8, img9, img10];
+  const dujiangyan = importAll(
+    require.context("../imgs/dujiangyan", false, /\.(png|jpe?g|svg)$/)
+  );
+
+  const danang_boats = importAll(
+    require.context("../imgs/danang-boats", false, /\.(png|jpe?g|svg)$/)
+  );
+
   return (
     <div>
-      <div className="subtitle">Recent Work</div>
-      <div className="gallery-grid">
-        {imgs.map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt={`${index + 1}`}
-            className="gallery-image"
-          />
-        ))}
+      <div className="subtitle">Recents</div>
+      <div className="recents-container">
+        <div className="gallery">
+          <div className="gallery-title">
+            Dujiangyan <br /> Chengdu, China <br />
+            HP5400 Pushed 2 Stops
+          </div>
+          <ImageGallery images={dujiangyan} />
+        </div>
+
+        <div className="gallery">
+          <div className="gallery-title">
+            Banana Boats <br />
+            Da Nang, Vietnam <br />
+            TMAX400 Pushed 2 Stops <br /> Colorplus200
+          </div>
+          <ImageGallery images={danang_boats} />
+        </div>
+
+        {/* <div className="gallery">
+          <div className="gallery-title">Banana Boats <br />Da Nang, Vietnam <br />TMAX400 Pushed 2 Stops <br /> Colorplus200</div>
+          <ImageGallery images={danang_boats} />
+        </div> */}
       </div>
     </div>
   );
