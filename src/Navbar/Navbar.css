@@ -8,16 +8,21 @@
   font-family: Optima, sans-serif;
 }
 
+@font-face {
+  font-family: "kingbirds";
+  src: url("Kingbirdsregulardemo-rX27.woff") format("woff"), url("Kingbirdsregulardemo-rX27.ttf") format("truetype");
+}
+
 /* Logo section */
 .navbar-logo {
   display: flex;
   align-items: center;
   font-weight: normal;
-  font-size: xx-large;
+  font-size: xxx-large;
   gap: 0.5rem;
   text-decoration: none;
   color: black;
-  /* font-family: Optima, sans-serif; */
+  font-family: kingbirds;
 }
 
 /* Navigation options */
