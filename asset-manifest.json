@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/portfolio/static/css/main.6c8ece6f.css",
-    "main.js": "/portfolio/static/js/main.2e0330fd.js",
+    "main.css": "/portfolio/static/css/main.8243c517.css",
+    "main.js": "/portfolio/static/js/main.5af7bce7.js",
     "static/js/453.ed3810f9.chunk.js": "/portfolio/static/js/453.ed3810f9.chunk.js",
     "static/media/img1.jpg": "/portfolio/static/media/img1.7ba43fca0d601c6c172d.jpg",
     "static/media/img2.jpg": "/portfolio/static/media/img2.f0481982b3afc761da56.jpg",
@@ -13,15 +13,26 @@
     "static/media/img4.jpg": "/portfolio/static/media/img4.0271b74bafc4ab216077.jpg",
     "static/media/img5.jpg": "/portfolio/static/media/img5.963af816f882ccb20147.jpg",
     "static/media/000032190025.jpg": "/portfolio/static/media/000032190025.4130e84d9f91e0ea639c.jpg",
+    "static/media/R1-05027-033A.jpg": "/portfolio/static/media/R1-05027-033A.2c4b4051671c4b704445.jpg",
+    "static/media/R1-05027-029A.jpg": "/portfolio/static/media/R1-05027-029A.33d26efb2fcad8b4bd18.jpg",
+    "static/media/R1-05027-024A.jpg": "/portfolio/static/media/R1-05027-024A.eb46b9905c14aaf41430.jpg",
+    "static/media/R1-05027-023A.jpg": "/portfolio/static/media/R1-05027-023A.8beefd364ba94e05a7fe.jpg",
+    "static/media/R1-05027-0037.jpg": "/portfolio/static/media/R1-05027-0037.2f4307dc699209606aab.jpg",
+    "static/media/AR1-05027-005A.jpg": "/portfolio/static/media/AR1-05027-005A.e97ab47e618da8dec493.jpg",
+    "static/media/aR1-05027-021A.jpg": "/portfolio/static/media/aR1-05027-021A.bb182cf1902ebcc31bf8.jpg",
+    "static/media/R1-05027-012A.jpg": "/portfolio/static/media/R1-05027-012A.6fed1a4f818825c43364.jpg",
+    "static/media/R1-05027-004A.jpg": "/portfolio/static/media/R1-05027-004A.c2537baba111a5bc0fb9.jpg",
+    "static/media/R1-05027-010A.jpg": "/portfolio/static/media/R1-05027-010A.e95d9eb5b65f63881ab1.jpg",
+    "static/media/R1-05027-022A.jpg": "/portfolio/static/media/R1-05027-022A.93431ff868397ce21935.jpg",
     "static/media/Kingbirdsregulardemo-rX27.ttf": "/portfolio/static/media/Kingbirdsregulardemo-rX27.62c120107ccb10407fd7.ttf",
     "static/media/Kingbirdsregulardemo-rX27.woff": "/portfolio/static/media/Kingbirdsregulardemo-rX27.e967000aad0dfe066095.woff",
     "index.html": "/portfolio/index.html",
-    "main.6c8ece6f.css.map": "/portfolio/static/css/main.6c8ece6f.css.map",
-    "main.2e0330fd.js.map": "/portfolio/static/js/main.2e0330fd.js.map",
+    "main.8243c517.css.map": "/portfolio/static/css/main.8243c517.css.map",
+    "main.5af7bce7.js.map": "/portfolio/static/js/main.5af7bce7.js.map",
     "453.ed3810f9.chunk.js.map": "/portfolio/static/js/453.ed3810f9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.6c8ece6f.css",
-    "static/js/main.2e0330fd.js"
+    "static/css/main.8243c517.css",
+    "static/js/main.5af7bce7.js"
   ]
 }
