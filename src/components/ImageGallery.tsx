@@ -32,7 +32,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
         </button>
         <img
           src={images[currentIndex]}
-          alt={`Image ${currentIndex + 1}`}
+          // alt={`Image ${currentIndex + 1}`}
           className="gallery-image"
         />
         <button onClick={handleNext} className="arrow-button">
