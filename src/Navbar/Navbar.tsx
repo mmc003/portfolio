@@ -53,15 +53,15 @@ const Navbar: React.FC = () => {
             About
           </NavLink>
         </li>
-        {/* <li>
+        <li>
           <NavLink
-            to="/contact"
+            to="https://michaelchu.netlify.app/"
             className={({ isActive }) => (isActive ? "active-link" : "")}
             onClick={closeMenu}
           >
-            Contact
+            Software Engineering Portfolio
           </NavLink>
-        </li> */}
+        </li>
       </ul>
     </nav>
   );
