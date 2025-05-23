@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
             className={({ isActive }) => (isActive ? "active-link" : "")}
             onClick={closeMenu}
           >
-            Software Engineering Portfolio
+            SWE
           </NavLink>
         </li>
       </ul>
