@@ -6,6 +6,10 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     globalSetup: ["./test/setupDb.ts"],
+    // DB-writing test files share one SQLite file; serialize them to avoid
+    // "database is locked" under parallel access. The suite is small.
+    pool: "forks",
+    poolOptions: { forks: { singleFork: true } },
     // Keep test artifacts out of the working tree.
     cacheDir: "node_modules/.vitest",
     coverage: {

@@ -4,6 +4,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { getEnv } from "../config/env";
+import { ImageRepository } from "./imageRepository";
 
 export function createPrismaClient(datasourceUrl?: string): PrismaClient {
   const url = datasourceUrl ?? getEnv().DATABASE_URL;
@@ -23,4 +24,16 @@ export function getPrismaClient(): PrismaClient {
 /** Reset the cache (tests). */
 export function resetPrismaCache(): void {
   cached = undefined;
+}
+
+let repoCached: ImageRepository | undefined;
+
+/** Singleton image repository backed by the shared Prisma client. */
+export function getRepo(): ImageRepository {
+  if (!repoCached) repoCached = new ImageRepository(getPrismaClient());
+  return repoCached;
+}
+
+export function resetRepoCache(): void {
+  repoCached = undefined;
 }

@@ -7,6 +7,7 @@ import { requestId } from "./middleware/requestId";
 import { requestLogger } from "./middleware/requestLogger";
 import { notFound, errorHandler } from "./middleware/error";
 import healthRouter from "./routes/health";
+import { createAdminRouter } from "./routes/admin";
 
 /**
  * Build the Express app. Exposed as a factory so tests can (re)build it under
@@ -37,6 +38,7 @@ export function createApp(): Express {
 
   // Routes
   app.use("/api", healthRouter);
+  app.use("/api/admin", createAdminRouter(env.MAX_UPLOAD_SIZE_MB * 1024 * 1024));
 
   // Local storage adapter serves objects at /media/<objectKey> with immutable
   // caching (keys are content-unique). The S3 driver serves directly from
