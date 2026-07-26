@@ -1,0 +1,59 @@
+// Prisma schema for the portfolio image API.
+//
+// Portability: this schema uses ONLY cross-database features (no scalar lists,
+// no provider-specific @db types). The local/test driver is SQLite; for
+// production PostgreSQL, change `provider` to "postgresql" and regenerate
+// (`prisma generate` + `prisma migrate`). See docs/adr/001-*.md.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Image {
+  id                 String    @id @default(cuid())
+  title              String
+  description        String    @default("")
+  altText            String    @default("")
+  originalFilename   String
+  category           String?
+
+  // Storage object keys (content-unique → immutable cache). URLs are derived
+  // from these via the storage adapter; raw binaries are never stored in the DB.
+  objectKey          String    @unique
+  thumbnailObjectKey String?
+  mediumObjectKey    String?
+
+  width              Int
+  height             Int
+  aspectRatio        Float
+  mimeType           String
+  fileSize           Int
+  displayOrder       Int       @default(0)
+  isPublished        Boolean   @default(false)
+
+  // Optional EXIF / display metadata
+  camera             String?
+  lens               String?
+  location           String?
+  capturedAt         DateTime?
+  // Scalar lists aren't supported on SQLite, so tags are stored as a JSON
+  // array string and (de)serialized in the repository layer.
+  tags               String    @default("[]")
+  dominantColor      String?
+  blurPlaceholder    String?
+
+  // Content hash for migration idempotency / dedup.
+  contentHash        String?   @unique
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Composite unique enables stable cursor (keyset) pagination.
+  @@unique([createdAt, id])
+  @@index([isPublished, displayOrder, createdAt])
+  @@index([category])
+}

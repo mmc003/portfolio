@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.env
+.env.local
+.env.*.local
+*.log
+
+# Local storage adapter output + dev database
+uploads/
+*.db
+*.db-journal
+dev.db
+prisma/migrations/dev.db
