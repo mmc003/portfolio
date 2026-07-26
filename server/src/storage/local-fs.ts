@@ -14,17 +14,13 @@ const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 
 export interface LocalFsOptions {
   rootDir: string;
-  /** Public origin used to build absolute URLs (e.g. http://localhost:4000). */
-  publicBaseUrl: string;
 }
 
 export class LocalFilesystemStorage implements ImageStorage {
   private readonly rootDir: string;
-  private readonly publicBaseUrl: string;
 
   constructor(opts: LocalFsOptions) {
     this.rootDir = path.resolve(opts.rootDir);
-    this.publicBaseUrl = opts.publicBaseUrl.replace(/\/$/, "");
   }
 
   private resolve(objectKey: string): string {
@@ -55,9 +51,14 @@ export class LocalFilesystemStorage implements ImageStorage {
     await fs.rm(filePath, { force: true });
   }
 
+  /**
+   * Returns a path-relative URL (/media/<key>). The route layer absolute-ifies
+   * it using the incoming request's host (or PUBLIC_BASE_URL override), so
+   * images work regardless of which port/host the API is reached on.
+   */
   getPublicUrl(objectKey: string): string {
     assertSafeObjectKey(objectKey);
-    return `${this.publicBaseUrl}/media/${objectKey}`;
+    return `/media/${objectKey}`;
   }
 
   /** Used by the static route to set immutable cache headers on unique keys. */

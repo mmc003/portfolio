@@ -13,6 +13,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { HttpError } from "../middleware/error";
 import { uploadImage } from "../services/uploadService";
 import { toImageDTO } from "../api/dto";
+import { mediaUrlPrefix } from "../api/mediaUrl";
 import { getStorage } from "../storage";
 import { getRepo } from "../db/client";
 import { getLogger } from "../utils/logger";
@@ -68,7 +69,7 @@ export function createAdminRouter(maxBytes: number): Router {
         displayOrder: parseOptionalInt(body.displayOrder),
       });
 
-      res.status(201).json(toImageDTO(record, getStorage()));
+      res.status(201).json(toImageDTO(record, getStorage(), mediaUrlPrefix(req)));
     })
   );
 
@@ -95,7 +96,7 @@ export function createAdminRouter(maxBytes: number): Router {
       if (body.tags !== undefined) changes.tags = normalizeTags(body.tags) ?? [];
 
       const updated = await repo.update(req.params.id, changes);
-      res.json(toImageDTO(updated, getStorage()));
+      res.json(toImageDTO(updated, getStorage(), mediaUrlPrefix(req)));
     })
   );
 
@@ -108,7 +109,7 @@ export function createAdminRouter(maxBytes: number): Router {
       const existing = await repo.findById(req.params.id);
       if (!existing) throw new HttpError(404, "Image not found", "not_found");
       const updated = await repo.update(req.params.id, { isPublished: true });
-      res.json(toImageDTO(updated, getStorage()));
+      res.json(toImageDTO(updated, getStorage(), mediaUrlPrefix(req)));
     })
   );
 

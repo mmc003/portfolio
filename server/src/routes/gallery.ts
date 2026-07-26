@@ -12,6 +12,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { getRepo } from "../db/client";
 import { getStorage } from "../storage";
 import { toImageDTO } from "../api/dto";
+import { mediaUrlPrefix } from "../api/mediaUrl";
 import { resolveLimit } from "../db/imageRepository";
 import { HttpError } from "../middleware/error";
 
@@ -31,6 +32,7 @@ export function createGalleryRouter(): Router {
     asyncHandler(async (req: Request, res) => {
       const repo = getRepo();
       const storage = getStorage();
+      const prefix = mediaUrlPrefix(req);
 
       const limit = resolveLimit(asString(req.query.limit) ?? undefined);
       const sort = asString(req.query.sort) === "oldest" ? "oldest" : "newest";
@@ -51,7 +53,7 @@ export function createGalleryRouter(): Router {
       res.set("Cache-Control", "public, max-age=60, s-maxage=300");
       res.set("Vary", "Accept-Encoding");
       res.json({
-        items: items.map((i) => toImageDTO(i, storage)),
+        items: items.map((i) => toImageDTO(i, storage, prefix)),
         pagination: { nextCursor, hasMore: nextCursor !== null },
       });
     })
@@ -67,7 +69,7 @@ export function createGalleryRouter(): Router {
         throw new HttpError(404, "Image not found", "not_found");
       }
       res.set("Cache-Control", "public, max-age=300, s-maxage=600");
-      res.json(toImageDTO(image, storage));
+      res.json(toImageDTO(image, storage, mediaUrlPrefix(req)));
     })
   );
 

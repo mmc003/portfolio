@@ -15,13 +15,13 @@ afterEach(async () => {
 
 describe("LocalFilesystemStorage", () => {
   it("uploads, reads back, and deletes an object", async () => {
-    const storage = new LocalFilesystemStorage({ rootDir: root, publicBaseUrl: "http://localhost:4000" });
+    const storage = new LocalFilesystemStorage({ rootDir: root });
     const key = "images/2026/07/abc/original.jpg";
     const data = Buffer.from("fake-jpeg-bytes");
 
     const stored = await storage.upload({ data, objectKey: key, mimeType: "image/jpeg" });
     expect(stored.size).toBe(data.byteLength);
-    expect(stored.url).toBe(`http://localhost:4000/media/${key}`);
+    expect(stored.url).toBe(`/media/${key}`);
 
     const onDisk = await fs.readFile(path.join(root, key));
     expect(onDisk.equals(data)).toBe(true);
@@ -31,12 +31,12 @@ describe("LocalFilesystemStorage", () => {
   });
 
   it("delete is idempotent (missing file does not throw)", async () => {
-    const storage = new LocalFilesystemStorage({ rootDir: root, publicBaseUrl: "http://x" });
+    const storage = new LocalFilesystemStorage({ rootDir: root });
     await expect(storage.delete("images/missing.webp")).resolves.toBeUndefined();
   });
 
   it("rejects path-traversal keys", async () => {
-    const storage = new LocalFilesystemStorage({ rootDir: root, publicBaseUrl: "http://x" });
+    const storage = new LocalFilesystemStorage({ rootDir: root });
     await expect(
       storage.upload({ data: Buffer.from("x"), objectKey: "../escape.webp", mimeType: "image/webp" })
     ).rejects.toThrow(/Unsafe object key|escapes storage root/);
@@ -44,7 +44,7 @@ describe("LocalFilesystemStorage", () => {
   });
 
   it("creates nested directories as needed", async () => {
-    const storage = new LocalFilesystemStorage({ rootDir: root, publicBaseUrl: "http://x" });
+    const storage = new LocalFilesystemStorage({ rootDir: root });
     const key = "images/cat/2026/07/uuid/medium.webp";
     await storage.upload({ data: Buffer.from("y"), objectKey: key, mimeType: "image/webp" });
     const stat = await fs.stat(path.join(root, key));

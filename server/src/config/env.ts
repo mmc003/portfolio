@@ -19,9 +19,10 @@ const schema = z.object({
     .default("development"),
   PORT: z.coerce.number().int().positive().max(65535).default(4000),
   CORS_ORIGIN: z.string().default("*"),
-  // Public origin of THIS api, used by the local storage adapter to build
-  // absolute media URLs (e.g. http://localhost:4000). Ignored by the S3 driver.
-  PUBLIC_BASE_URL: z.string().default("http://localhost:4000"),
+  // Optional override for the media-URL origin. When empty (default), media
+  // URLs are built from the incoming request's host, so they work on any port
+  // or behind a proxy without configuration. Ignored by the S3 driver.
+  PUBLIC_BASE_URL: z.string().default(""),
 
   ADMIN_API_TOKEN: z.string().min(1),
 

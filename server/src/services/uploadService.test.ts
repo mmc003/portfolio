@@ -32,7 +32,7 @@ afterAll(async () => {
 /** A real local storage pointed at a fresh temp dir, so we can inspect files. */
 async function freshStorage(): Promise<{ storage: LocalFilesystemStorage; root: string }> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "upload-svc-"));
-  return { storage: new LocalFilesystemStorage({ rootDir: root, publicBaseUrl: "http://localhost:4000" }), root };
+  return { storage: new LocalFilesystemStorage({ rootDir: root }), root };
 }
 
 async function countFiles(root: string): Promise<number> {

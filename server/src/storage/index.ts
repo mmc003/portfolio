@@ -20,7 +20,6 @@ export function createStorage(env = getEnv()): ImageStorage {
   }
   return new LocalFilesystemStorage({
     rootDir: env.STORAGE_LOCAL_DIR,
-    publicBaseUrl: env.PUBLIC_BASE_URL,
   });
 }
 

@@ -34,7 +34,17 @@ export interface ImageDTO {
   sources: ImageSources;
 }
 
-export function toImageDTO(image: ImageRecord, storage: ImageStorage): ImageDTO {
+/**
+ * Map a stored image to its public DTO. `urlPrefix` absolute-ifies any
+ * path-relative media URLs returned by the local adapter (e.g. /media/...).
+ * Absolute URLs (S3/CDN) pass through unchanged.
+ */
+export function toImageDTO(
+  image: ImageRecord,
+  storage: ImageStorage,
+  urlPrefix = ""
+): ImageDTO {
+  const abs = (u: string) => (u.startsWith("/") ? `${urlPrefix}${u}` : u);
   return {
     id: image.id,
     title: image.title,
@@ -54,9 +64,9 @@ export function toImageDTO(image: ImageRecord, storage: ImageStorage): ImageDTO 
     createdAt: image.createdAt.toISOString(),
     updatedAt: image.updatedAt.toISOString(),
     sources: {
-      original: storage.getPublicUrl(image.objectKey),
-      medium: image.mediumObjectKey ? storage.getPublicUrl(image.mediumObjectKey) : null,
-      thumbnail: image.thumbnailObjectKey ? storage.getPublicUrl(image.thumbnailObjectKey) : null,
+      original: abs(storage.getPublicUrl(image.objectKey)),
+      medium: image.mediumObjectKey ? abs(storage.getPublicUrl(image.mediumObjectKey)) : null,
+      thumbnail: image.thumbnailObjectKey ? abs(storage.getPublicUrl(image.thumbnailObjectKey)) : null,
     },
   };
 }
