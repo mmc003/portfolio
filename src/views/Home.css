@@ -1,23 +1,30 @@
+/* Full hero image: height-constrained on desktop, width-constrained on mobile.
+   No object-fit cropping — the entire photo is shown (matches original layout). */
 .homepage-img {
-   height: 80vh;
-
-}
-
-.homepage-skeleton {
-   background: #ececec;
-}
-
-.homepage-empty {
-   height: 80vh;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   color: #888;
+  height: 80vh;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
-.homepage-img{
+  .homepage-img {
     height: auto;
     width: 90vw;
+  }
 }
+
+.homepage-skeleton {
+  height: 80vh;
+  width: 100%;
+  background: #ececec;
+}
+
+.homepage-empty {
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
 }

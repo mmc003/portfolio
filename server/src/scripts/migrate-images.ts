@@ -35,6 +35,8 @@ export interface RunMigrationOptions {
   source: string;
   dryRun?: boolean;
   onError?: "continue" | "fail";
+  /** Force this category for every imported file (overrides folder inference). */
+  category?: string;
   storage: ImageStorage;
   repo: ImageRepository;
 }
@@ -105,7 +107,8 @@ export async function runMigration(opts: RunMigrationOptions): Promise<Migration
   const orderBase: Record<string, number> = {};
 
   for (const item of items) {
-    const categoryKey = item.category ?? "__none__";
+    const category = opts.category !== undefined ? opts.category : item.category;
+    const categoryKey = category ?? "__none__";
     try {
       const buffer = await fs.readFile(item.file);
       const hash = sha256Hex(buffer);
@@ -121,7 +124,7 @@ export async function runMigration(opts: RunMigrationOptions): Promise<Migration
       }
 
       if (!(categoryKey in orderBase)) {
-        orderBase[categoryKey] = await opts.repo.maxDisplayOrder(item.category ?? undefined);
+        orderBase[categoryKey] = await opts.repo.maxDisplayOrder(category ?? undefined);
       }
       orderBase[categoryKey] += 1;
 
@@ -129,7 +132,7 @@ export async function runMigration(opts: RunMigrationOptions): Promise<Migration
         {
           buffer,
           originalFilename: path.basename(item.file),
-          category: item.category ?? undefined,
+          category: category ?? undefined,
           title: titleFromFilename(item.file),
           altText: titleFromFilename(item.file),
           displayOrder: orderBase[categoryKey],
@@ -170,6 +173,7 @@ interface CliArgs {
   source?: string;
   dryRun: boolean;
   onError: "continue" | "fail";
+  category?: string;
 }
 
 function parseArgs(argv: string[]): CliArgs {
@@ -181,6 +185,8 @@ function parseArgs(argv: string[]): CliArgs {
     else if (a.startsWith("--source=")) out.source = a.slice("--source=".length);
     else if (a === "--on-error") out.onError = argv[i + 1] === "fail" ? "fail" : "continue";
     else if (a.startsWith("--on-error=")) out.onError = a.slice("--on-error=".length) === "fail" ? "fail" : "continue";
+    else if (a === "--category") out.category = argv[i + 1];
+    else if (a.startsWith("--category=")) out.category = a.slice("--category=".length);
   }
   return out;
 }
@@ -199,6 +205,7 @@ async function main(): Promise<void> {
     source,
     dryRun: args.dryRun,
     onError: args.onError,
+    category: args.category,
     storage: getStorage(),
     repo: getRepo(),
   });

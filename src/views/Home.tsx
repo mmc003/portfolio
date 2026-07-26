@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
-import ResponsiveImage from "../components/ResponsiveImage";
 import { fetchGallery } from "../api/client";
 import type { GalleryItem } from "../api/types";
 
-// Hero image now comes from the API (no bundled homepage JPEG).
+// Hero image comes from the API (category "homepage"). Rendered as a plain
+// full image (height-constrained, width auto) — no cropping — to match the
+// original layout.
 const Home: React.FC = () => {
   const [hero, setHero] = useState<GalleryItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -12,7 +13,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const ac = new AbortController();
-    fetchGallery({ limit: 1, signal: ac.signal })
+    fetchGallery({ category: "homepage", limit: 1, signal: ac.signal })
       .then((r) => setHero(r.items[0] ?? null))
       .catch((e) => {
         if ((e as Error)?.name !== "AbortError") setError(true);
@@ -22,15 +23,28 @@ const Home: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div className="homepage-img homepage-skeleton" role="status" aria-busy="true" />;
+    return <div className="homepage-skeleton" role="status" aria-busy="true" />;
   }
   if (error || !hero) {
-    return <div className="homepage-empty">No images available.</div>;
+    return <div className="homepage-empty">No homepage image set.</div>;
   }
+
+  const src = hero.sources.medium || hero.sources.original;
+  const srcSet = [
+    hero.sources.medium ? `${hero.sources.medium} 1600w` : null,
+    `${hero.sources.original} ${hero.width}w`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   return (
-    <div className="homepage-img">
-      <ResponsiveImage item={hero} variant="cover" eager sizes="100vw" />
-    </div>
+    <img
+      className="homepage-img"
+      src={src}
+      srcSet={srcSet}
+      sizes="90vw"
+      alt={hero.altText || hero.title}
+    />
   );
 };
 
