@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import ResponsiveImage from "./ResponsiveImage";
 import type { GalleryItem } from "../api/types";
 
@@ -29,8 +29,8 @@ function item(over: Partial<GalleryItem> = {}): GalleryItem {
 
 describe("ResponsiveImage", () => {
   it("renders an img with responsive srcset across all variants + alt", () => {
-    const { getByAltText } = render(<ResponsiveImage item={item()} />);
-    const img = getByAltText("Descriptive alt text") as HTMLImageElement;
+    render(<ResponsiveImage item={item()} />);
+    const img = screen.getByAltText("Descriptive alt text") as HTMLImageElement;
     expect(img.src).toBe("https://cdn/m.webp"); // medium fallback
     expect(img.srcset).toContain("500w");
     expect(img.srcset).toContain("1600w");
@@ -40,20 +40,20 @@ describe("ResponsiveImage", () => {
   });
 
   it("reserves space via aspect-ratio to prevent layout shift", () => {
-    const { container } = render(<ResponsiveImage item={item()} />);
-    const box = container.querySelector(".responsive-image") as HTMLElement;
+    render(<ResponsiveImage item={item()} />);
+    const box = screen.getByTestId("responsive-image") as HTMLElement;
     expect(box.style.aspectRatio).toBe("1.5");
   });
 
   it("loads eagerly when asked (hero)", () => {
-    const { getByAltText } = render(<ResponsiveImage item={item()} eager />);
-    expect((getByAltText("Descriptive alt text") as HTMLImageElement).getAttribute("loading")).toBe(
-      "eager"
-    );
+    render(<ResponsiveImage item={item()} eager />);
+    expect(
+      (screen.getByAltText("Descriptive alt text") as HTMLImageElement).getAttribute("loading")
+    ).toBe("eager");
   });
 
   it("falls back to alt text from title when altText is empty", () => {
-    const { getByAltText } = render(<ResponsiveImage item={item({ altText: "" })} />);
-    expect(getByAltText("A title")).toBeInTheDocument();
+    render(<ResponsiveImage item={item({ altText: "" })} />);
+    expect(screen.getByAltText("A title")).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import CategoryGallery from "./CategoryGallery";
 import type { GalleryItem, GalleryResponse } from "../api/types";
 
@@ -47,15 +47,14 @@ describe("CategoryGallery", () => {
     mockJson({ items: [makeItem("1")], pagination: { nextCursor: null, hasMore: false } });
     render(<CategoryGallery category="fog" title="Fog" />);
     expect(screen.getByRole("status")).toBeInTheDocument();
-    await waitFor(() =>
-      expect(screen.getByAltText("alt 1")).toHaveAttribute("src", "https://cdn/1/m.webp")
-    );
+    const img = (await screen.findByAltText("alt 1")) as HTMLImageElement;
+    expect(img.src).toBe("https://cdn/1/m.webp");
   });
 
   it("shows an empty state when there are no images", async () => {
     mockJson({ items: [], pagination: { nextCursor: null, hasMore: false } });
     render(<CategoryGallery category="fog" title="Fog" />);
-    await waitFor(() => expect(screen.getByText(/No images yet/i)).toBeInTheDocument());
+    expect(await screen.findByText(/No images yet/i)).toBeInTheDocument();
   });
 
   it("shows an error state with retry, and retry refetches", async () => {
@@ -71,9 +70,9 @@ describe("CategoryGallery", () => {
       }) as unknown as typeof fetch;
 
     render(<CategoryGallery category="fog" title="Fog" />);
-    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /retry/i }));
-    await waitFor(() => expect(screen.getByAltText("alt 1")).toBeInTheDocument());
+    expect(await screen.findByAltText("alt 1")).toBeInTheDocument();
   });
 
   it("loads more pages on demand (pagination, no duplicates)", async () => {
@@ -95,9 +94,9 @@ describe("CategoryGallery", () => {
       }) as unknown as typeof fetch;
 
     render(<CategoryGallery category="fog" title="Fog" />);
-    await waitFor(() => expect(screen.getByText(/1 \/ 1/)).toBeInTheDocument()); // counter
+    expect(await screen.findByText(/1 \/ 1/)).toBeInTheDocument(); // counter
     fireEvent.click(screen.getByRole("button", { name: /load more/i }));
-    await waitFor(() => expect(screen.getByText(/1 \/ 3/)).toBeInTheDocument());
+    expect(await screen.findByText(/1 \/ 3/)).toBeInTheDocument();
 
     // The second request carried the cursor from the first page.
     expect(lastCallUrl()).toContain("cursor=cur-1");

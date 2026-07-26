@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import App from "./App";
 
 // The gallery is API-driven now; mock fetch so views don't hit the network.
@@ -15,5 +15,5 @@ beforeEach(() => {
 
 test("renders the navbar logo", async () => {
   render(<App />);
-  await waitFor(() => expect(screen.getByText("Michael Chu")).toBeInTheDocument());
+  expect(await screen.findByText("Michael Chu")).toBeInTheDocument();
 });

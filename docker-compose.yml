@@ -1,0 +1,57 @@
+# Optional: production-parity local stack (PostgreSQL + MinIO/S3).
+#
+# The DEFAULT local development setup needs NONE of this — it uses SQLite +
+# the local filesystem storage adapter (zero external services). This compose
+# file is for developers who want to exercise the real PostgreSQL + S3 paths
+# locally before deploying.
+#
+#   docker compose up -d postgres minio
+#
+# Then point the server at them (server/.env):
+#   DATABASE_URL="postgresql://portfolio:portfolio@localhost:5432/portfolio?schema=public"
+#   STORAGE_DRIVER=s3
+#   S3_ENDPOINT=http://localhost:9000
+#   S3_BUCKET=portfolio-images     # create once via the MinIO console (:9001)
+#   S3_ACCESS_KEY_ID=minioadmin
+#   S3_SECRET_ACCESS_KEY=minioadmin
+#
+# NOTE: switch the Prisma provider to "postgresql" in server/prisma/schema.prisma
+# before running `prisma migrate deploy` against Postgres (see docs/adr/001).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: portfolio
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # web console
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+  miniodata:

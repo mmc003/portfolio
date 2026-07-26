@@ -50,6 +50,7 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
     <div
       className={`responsive-image responsive-image--${variant} ${className}`}
       style={style}
+      data-testid="responsive-image"
       data-placeholder={item.blurPlaceholder ? "blur" : "color"}
     >
       {!item.blurPlaceholder && (
