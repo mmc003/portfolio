@@ -21,7 +21,13 @@ export function createApp(): Express {
   const app = express();
 
   app.disable("x-powered-by");
-  app.use(helmet());
+  // Public media (images) is loaded cross-origin by the frontend, so allow
+  // cross-origin resource loading. (Write routes remain token-protected.)
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    })
+  );
   app.use(compression());
 
   // CORS — allow a single origin, a comma-separated list, or "*".
