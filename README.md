@@ -166,6 +166,10 @@ missing/malformed. `.env` is gitignored; only `.env.example` is committed.
 
 ## Production deployment
 
+**Recommended (free): Netlify (frontend) + Render (backend) + Neon (Postgres) +
+Cloudflare R2 (images).** See **`docs/deployment.md`** for the full step-by-step
+(env vars, CORS, prod image import, cold-start notes). Summary:
+
 - **Frontend:** any static host (Netlify, Vercel, S3+CloudFront, gh-pages). Build
   with `REACT_APP_API_BASE_URL` pointing at the API. Static hosts cannot run the
   backend — host the backend separately.
