@@ -1,48 +1,54 @@
 import React, { useState } from "react";
 import "./ImageGallery.css";
+import ResponsiveImage from "./ResponsiveImage";
+import type { GalleryItem } from "../api/types";
 
-// Define the props type
 interface ImageGalleryProps {
-  images: string[];
+  images: GalleryItem[];
 }
 
+// Carousel that shows one image at a time. Only the active slide is mounted,
+// so the browser never downloads off-screen originals.
 const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
-  // State to track the current image index
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Navigate to the previous image
-  const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  };
+  if (images.length === 0) return null;
 
-  // Navigate to the next image
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  const handlePrev = () =>
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  const handleNext = () =>
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+
+  const item = images[currentIndex];
 
   return (
     <div>
       <div className="gallery-container">
-        <button onClick={handlePrev} className="arrow-button">
+        <button
+          onClick={handlePrev}
+          className="arrow-button"
+          aria-label="Previous image"
+        >
           ❮
         </button>
-        <img
-          src={images[currentIndex]}
-          alt={` ${currentIndex + 1}`}
-          className="gallery-image"
-        />
-        <button onClick={handleNext} className="arrow-button">
+        <div className="gallery-image">
+          <ResponsiveImage
+            item={item}
+            sizes="(max-width: 800px) 100vw, 800px"
+            eager={currentIndex === 0}
+          />
+        </div>
+        <button
+          onClick={handleNext}
+          className="arrow-button"
+          aria-label="Next image"
+        >
           ❯
         </button>
-        
       </div>
       <div className="image-counter">
-          {currentIndex + 1} / {images.length}
-        </div>
+        {currentIndex + 1} / {images.length}
+      </div>
     </div>
   );
 };

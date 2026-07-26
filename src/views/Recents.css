@@ -17,3 +17,47 @@
   width: 200px; /* Ensure a consistent width for titles */
   text-align: right;
 }
+
+.gallery-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Loading skeleton reserves space (aspect-ratio) to avoid layout shift. */
+.gallery-skeleton {
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 3 / 2;
+  background: linear-gradient(90deg, #ececec, #f6f6f6, #ececec);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.gallery-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #b00020;
+}
+
+.gallery-retry,
+.gallery-loadmore {
+  cursor: pointer;
+  background: none;
+  border: 1px solid #ccc;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+}
+
+.gallery-empty {
+  color: #888;
+}

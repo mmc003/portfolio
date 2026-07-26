@@ -3,6 +3,18 @@
 
 }
 
+.homepage-skeleton {
+   background: #ececec;
+}
+
+.homepage-empty {
+   height: 80vh;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: #888;
+}
+
 @media (max-width: 768px) {
 .homepage-img{
     height: auto;

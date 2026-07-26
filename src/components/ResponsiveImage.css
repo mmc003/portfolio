@@ -1,0 +1,48 @@
+.responsive-image {
+  position: relative;
+  overflow: hidden;
+  background-color: #e9e9e9;
+  width: 100%;
+}
+
+.responsive-image--cover {
+  height: 100%;
+}
+
+.responsive-image--cover .responsive-image__img {
+  object-fit: cover;
+}
+
+.responsive-image__bg,
+.responsive-image__blur {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.responsive-image__blur {
+  filter: blur(20px);
+  transform: scale(1.1);
+}
+
+.responsive-image__img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: ri-fade-in 0.3s ease;
+}
+
+@keyframes ri-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
