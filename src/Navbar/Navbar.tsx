@@ -37,11 +37,11 @@ const Navbar: React.FC = () => {
         </li>
         <li>
           <NavLink
-            to="/mywork"
+            to="/gallery"
             className={({ isActive }) => (isActive ? "active-link" : "")}
             onClick={closeMenu}
           >
-            Recents
+            Gallery
           </NavLink>
         </li>
         <li>
@@ -53,7 +53,7 @@ const Navbar: React.FC = () => {
             About
           </NavLink>
         </li>
-        <li>
+        {/* <li>
           <NavLink
             to="https://michaelchu.netlify.app/"
             className={({ isActive }) => (isActive ? "active-link" : "")}
@@ -61,7 +61,7 @@ const Navbar: React.FC = () => {
           >
             SWE
           </NavLink>
-        </li>
+        </li> */}
       </ul>
     </nav>
   );

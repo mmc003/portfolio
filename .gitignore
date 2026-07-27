@@ -35,3 +35,7 @@ yarn-error.log*
 /server/dev.db
 /server/dev.db-journal
 /server/uploads/
+
+
+server/migrate-recents.sh
+server/migrate-homepage.sh

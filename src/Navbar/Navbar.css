@@ -8,12 +8,15 @@
   align-items: center;
   padding: 0.5rem 2rem;
   height: 60px;
-  font-family: Optima, sans-serif;
+  /* font-family: Optima, sans-serif; */
+  font-family: "EB Garamond", Garamond, Georgia, serif;
 }
 
 @font-face {
   font-family: "kingbirds";
-  src: url("Kingbirdsregulardemo-rX27.woff") format("woff"), url("Kingbirdsregulardemo-rX27.ttf") format("truetype");
+  src:
+    url("Kingbirdsregulardemo-rX27.woff") format("woff"),
+    url("Kingbirdsregulardemo-rX27.ttf") format("truetype");
 }
 
 /* Logo section */
@@ -26,8 +29,6 @@
   text-decoration: none;
   color: black;
   /* font-family: kingbirds; */
-  font-family: "EB Garamond", Garamond, Georgia, serif;
-
 }
 
 /* Navigation options */

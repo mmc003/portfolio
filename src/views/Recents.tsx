@@ -12,13 +12,13 @@ import Lightbox from "../components/Lightbox";
 const Recents: React.FC = () => {
   const { items, loading, error, hasMore, loadMore, retry } = useGallery({
     category: "recents",
-    limit: 24,
+    limit: 64,
   });
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <div className="recents-view">
-      <div className="subtitle">Recents</div>
+      {/* <div className="subtitle"></div> */}
 
       <div className="recents-grid-wrap">
         {loading && items.length === 0 && (
