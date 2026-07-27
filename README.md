@@ -166,17 +166,18 @@ missing/malformed. `.env` is gitignored; only `.env.example` is committed.
 
 ## Production deployment
 
-**Recommended (free): Netlify (frontend) + Render (backend) + Neon (Postgres) +
+**Recommended (free): Vercel (frontend + serverless API) + Supabase (Postgres) +
 Cloudflare R2 (images).** See **`docs/deployment.md`** for the full step-by-step
 (env vars, CORS, prod image import, cold-start notes). Summary:
 
-- **Frontend:** any static host (Netlify, Vercel, S3+CloudFront, gh-pages). Build
-  with `REACT_APP_API_BASE_URL` pointing at the API. Static hosts cannot run the
-  backend — host the backend separately.
-- **Backend:** any Node host (Fly.io, Railway, Render, a VM, a container). Set
-  all env vars; run `prisma migrate deploy` on deploy.
-- **Database:** managed PostgreSQL (RDS, Neon, etc.). Switch the Prisma
-  `provider` to `postgresql`, regenerate, and migrate.
+- **Frontend + API:** one Vercel project serves the React build (CRA → `build/`)
+  plus the Express API as a serverless function mounted at `/api/*` (see
+  `api/index.ts` and `vercel.json`). Leave `REACT_APP_API_BASE_URL` unset in
+  production so calls resolve same-origin (no CORS).
+- **Database:** managed PostgreSQL — recommended target is **Supabase** (use the
+  connection pooler, port 6543, with `?pgbouncer=true&connection_limit=1`). The
+  Prisma `provider` is swapped to `postgresql` at build time; run `prisma db
+  push` against prod manually, not on every cold start.
 - **Object storage:** any S3-compatible bucket (S3, R2, B2) or MinIO. Set
   `STORAGE_DRIVER=s3` and the `S3_*` vars; point `S3_PUBLIC_BASE_URL` at a CDN.
 - **CDN:** put a CDN in front of object storage; object keys are content-unique

@@ -6,7 +6,27 @@
  * derivatives. Also derives a dominant color and a tiny base64 blur placeholder
  * for low-quality-image-placeholders (prevents layout shift / pop-in).
  */
-import sharp from "sharp";
+// Type-only import: erased at compile time, so it does NOT pull Sharp's native
+// binary into the module graph at import time. The runtime module is required
+// lazily by loadSharp() below. This keeps Sharp (and its native libvips addon)
+// out of serverless cold starts, where the upload path is never used.
+import type { FormatEnum } from "sharp";
+
+type Sharp = typeof import("sharp");
+
+// Cached lazy loader. Sharp's native addon loads the first time the module is
+// required; deferring that to first use means a process that never processes an
+// image (e.g. the Vercel function, which only serves reads) never loads it — and
+// never depends on the platform's Sharp binary being present or correct.
+// `require` (not a dynamic `import`) is used because this project compiles to
+// CommonJS, so it returns the sharp function directly with no interop wrapper.
+let sharpMod: Sharp | undefined;
+function loadSharp(): Sharp {
+  // Intentional lazy require (see comment above); this is CommonJS output, so
+  // require() returns the sharp function directly.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return (sharpMod ??= require("sharp") as Sharp);
+}
 
 export interface ImageVariant {
   data: Buffer;
@@ -33,7 +53,7 @@ export interface ProcessOptions {
 }
 
 interface FormatSpec {
-  format: keyof sharp.FormatEnum;
+  format: keyof FormatEnum;
   options: Record<string, unknown>;
   mimeType: string;
   ext: string;
@@ -61,11 +81,13 @@ function derivativeFormatFor(format: "webp" | "jpeg", quality: number): FormatSp
 }
 
 async function dims(buf: Buffer): Promise<{ width: number; height: number }> {
+  const sharp = loadSharp();
   const m = await sharp(buf).metadata();
   return { width: m.width ?? 0, height: m.height ?? 0 };
 }
 
 export async function processImage(buffer: Buffer, opts: ProcessOptions): Promise<ProcessedImage> {
+  const sharp = loadSharp();
   // `.rotate()` applies EXIF orientation; outputs below do not call
   // `.withMetadata()`, so EXIF/metadata is stripped from every derivative.
   const source = sharp(buffer).rotate();

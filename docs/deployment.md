@@ -1,33 +1,34 @@
-# Production deployment (Option A)
+# Production deployment
 
-**Frontend → Netlify · Backend → Render · Database → Neon (Postgres) · Images → Cloudflare R2**
+**Frontend + API → Vercel · Database → Supabase (Postgres) · Images → Cloudflare R2**
 
-All four have free tiers that cover a personal portfolio. The only real caveat is
-that Render's free tier **sleeps after ~15 min idle** (~30 s cold start on the
-next visit); because the frontend is on Netlify's CDN, the page shell loads
-instantly and only the images wait for the backend to wake.
+The React frontend and the Express API are **one Vercel project**: the static
+CRA build is served from the edge, and the API runs as a serverless function
+mounted at `/api/*`. Because they share an origin, the frontend calls the API
+same-origin (no CORS). All three services have free tiers that cover a personal
+portfolio.
 
 ```
-Browser ──HTML/JS──▶ Netlify (React, static)
-       ──gallery JSON──▶ Render (Express API)
-                              │ Prisma
-                              ▼
-                          Neon (PostgreSQL)
-                              │ S3 API
-                              ▼
-                       Cloudflare R2 (image files)
+Browser ──HTML/JS──▶ Vercel (React, static build)
+       ──/api/*──▶   Vercel serverless function (Express)
+                       │ Prisma (Postgres provider)
+                       ▼
+                    Supabase (PostgreSQL)
+                       │ S3 API
+                       ▼
+                    Cloudflare R2 (image files, served directly to the browser)
 ```
 
 The code is identical to local — only environment variables change. The same
-schema runs on SQLite (local) and Postgres (prod) via `scripts/set-provider.js`.
+Prisma schema runs on SQLite (local) and Postgres (prod); `vercel.json` swaps
+the provider to `postgresql` and runs `prisma generate` at build time.
 
 ---
 
 ## Accounts you'll create (all free)
 - **Cloudflare** (R2 object storage) — https://dash.cloudflare.com
-- **Neon** (Postgres) — https://neon.tech
-- **Render** (Node host) — https://render.com (sign in with GitHub)
-- **Netlify** (frontend) — https://netlify.com (sign in with GitHub)
+- **Supabase** (Postgres) — https://supabase.com
+- **Vercel** (frontend + API) — https://vercel.com (sign in with GitHub)
 
 Do them in the order below.
 
@@ -51,36 +52,41 @@ You now have: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
 
 ---
 
-## Step 2 — Neon (Postgres database)
+## Step 2 — Supabase (Postgres database)
 
-1. Create a Neon project → copy the **connection string** (looks like
-   `postgresql://user:pass@ep-xxx.neon.tech/dbname?sslmode=require`).
-   This is your `DATABASE_URL`.
+1. Create a Supabase project.
+2. Connect → **Connection pooling** → **Transaction** mode → copy the pooler
+   **connection string** (port **6543**). It looks like:
+   ```
+   postgresql://postgres.[ref]:[pw]@aws-0-[region].pooler.supabase.com:6543/postgres
+   ```
+   Append `?pgbouncer=true&connection_limit=1` (recommended for Prisma on
+   serverless — one connection per function invocation).
+3. This full string is your `DATABASE_URL`.
+
+> Use the **pooler (port 6543)**, not the direct connection (port 5432).
+> Serverless functions open many short-lived connections; the pooler prevents you
+> from exhausting Supabase's direct-connection limit.
 
 ---
 
-## Step 3 — Render (backend API)
+## Step 3 — Vercel (frontend + serverless API)
 
-1. Render → **New → Web Service** → connect your GitHub repo (`mmc003/portfolio`).
-2. Settings:
-   - **Root Directory:** `server`
-   - **Runtime:** Node (20+)
-   - **Build Command:**
-     ```
-     npm ci && node scripts/set-provider.js && npx prisma generate && npm run build
-     ```
-   - **Start Command:**
-     ```
-     npx prisma db push --accept-data-loss && node dist/index.js
-     ```
-     (`db push` creates the tables on the fresh Neon DB from `schema.prisma`.)
-   - **Instance Type:** Free
-3. **Environment variables** (Render → Environment):
+1. Vercel → **Add New → Project** → import your GitHub repo (`mmc003/portfolio`).
+   - **Framework Preset:** Create React App (auto-detected; `vercel.json` pins it).
+   - **Root Directory:** leave as repo root (the project is a monorepo: CRA at
+     root, API in `server/`, function entry at `api/index.ts`).
+   - **Build / Install / Output:** already set by `vercel.json`
+     (`npm install && npm install --prefix server` →
+     `node server/scripts/set-provider.js postgresql && cd server && npx prisma
+     generate && cd .. && npm run build` → `build/`).
+2. **Environment variables** (Vercel → Settings → Environment Variables; apply to
+   **Production** — and Preview if you want):
 
    | Key | Value |
    |---|---|
    | `NODE_ENV` | `production` |
-   | `DATABASE_URL` | *(Neon connection string)* |
+   | `DATABASE_URL` | *(Supabase pooler string from Step 2)* |
    | `ADMIN_API_TOKEN` | generate with `openssl rand -hex 32` — **required** in prod |
    | `STORAGE_DRIVER` | `s3` |
    | `S3_ENDPOINT` | `https://<acct>.r2.cloudflarestorage.com` |
@@ -89,31 +95,57 @@ You now have: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
    | `S3_ACCESS_KEY_ID` | *(from R2 token)* |
    | `S3_SECRET_ACCESS_KEY` | *(from R2 token)* |
    | `S3_PUBLIC_BASE_URL` | `https://pub-abc123def.r2.dev` |
-   | `CORS_ORIGIN` | *(your Netlify URL, set after Step 5)* |
-   | `PUBLIC_BASE_URL` | *(your Render URL, e.g. `https://xxx.onrender.com`)* |
 
-4. Deploy. When it's live, verify:
+   Do **not** set `REACT_APP_API_BASE_URL` — leaving it unset makes the frontend
+   call `/api/*` same-origin (no CORS). `CORS_ORIGIN` can also stay unset/`*`;
+   same-origin requests don't need it.
+
+3. Deploy. Vercel builds the frontend and bundles the `api/index.ts` function
+   (tracing imports into `server/src`). When live, verify the API:
    ```
-   curl https://<your-render-url>.onrender.com/api/health
+   curl https://<your-project>.vercel.app/api/health
    # {"status":"ok",...}
    ```
-   Note the Render URL (e.g. `https://portfolio-api.onrender.com`).
 
-> The server derives media URLs from the request host, so `PUBLIC_BASE_URL` is
-> optional — but setting it explicitly avoids any proxy/host surprises.
+> **How the API becomes a function:** `api/index.ts` default-exports the Express
+> `app` from `server/src/app.ts`. Importing it does **not** call `app.listen()`
+> (that's gated to `require.main === module` in `server/src/index.ts`), so it's
+> safe to mount as a serverless handler.
 
 ---
 
-## Step 4 — Import your images into production (run locally, once)
+## Step 4 — Create the database schema (run locally, once)
 
-This uploads `src/imgs` into R2 and writes metadata to Neon, using the same
+The function only runs `prisma generate` (to build the client) — it does **not**
+run migrations. Create the tables on Supabase from your laptop:
+
+```bash
+cd server
+export DATABASE_URL="postgresql://postgres.[ref]:[pw]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+node scripts/set-provider.js postgresql && npx prisma db push
+# restore local dev afterwards:
+node scripts/set-provider.js sqlite && npx prisma generate
+unset DATABASE_URL
+```
+
+`db push` creates the `Image` table on Supabase from `schema.prisma`.
+
+---
+
+## Step 5 — Import your images into production (run locally, once)
+
+> **Why a local script, not a website upload?** Vercel serverless caps inbound
+> request bodies at ~4.5 MB, but source photos can be tens of MB. So images are
+> ingested by running the migration script on your laptop, which does the Sharp
+> processing locally and uploads directly to R2 + Supabase. (See "Notes" for the
+> in-browser upload option if you want it later.)
+
+This uploads `src/imgs` into R2 and writes metadata to Supabase, using the same
 pipeline as live uploads. Run from `server/`, temporarily pointing at prod:
 
 ```bash
 cd server
-
-# point this command at production (overrides server/.env):
-export DATABASE_URL="postgresql://...neon...?sslmode=require"
+export DATABASE_URL="postgresql://...supabase...:6543/postgres?pgbouncer=true&connection_limit=1"
 export STORAGE_DRIVER=s3
 export S3_ENDPOINT="https://<acct>.r2.cloudflarestorage.com"
 export S3_REGION=auto
@@ -122,7 +154,6 @@ export S3_ACCESS_KEY_ID="<r2 key id>"
 export S3_SECRET_ACCESS_KEY="<r2 secret>"
 export S3_PUBLIC_BASE_URL="https://pub-abc123def.r2.dev"
 
-# regenerate the Prisma client for Postgres, import, then restore local:
 node scripts/set-provider.js postgresql && npx prisma generate
 npm run migrate:images -- --source ../src/imgs
 npm run migrate:images -- --source ../src/homepage --category homepage
@@ -132,76 +163,69 @@ unset DATABASE_URL STORAGE_DRIVER S3_ENDPOINT S3_REGION S3_BUCKET \
       S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY S3_PUBLIC_BASE_URL
 ```
 
-Re-running is safe (idempotent — duplicates are skipped). Verify by visiting
-`https://<render-url>/api/images?limit=3` — you should see your photos with R2 URLs.
-
----
-
-## Step 5 — Netlify (frontend)
-
-1. Netlify → **Add new site → Import from Git** → pick `mmc003/portfolio`,
-   branch **`main`** (merge the feature branch first — see below).
-2. Build settings (a `netlify.toml` is already in the repo with these):
-   - **Build command:** `npm run build`
-   - **Publish directory:** `build`
-3. **Environment variables** (Site settings → Environment):
-   - `REACT_APP_API_BASE_URL` = `https://<your-render-url>.onrender.com`
-4. Deploy. Your site URL looks like `https://<site>.netlify.app`.
-
-> The app uses `HashRouter`, so no SPA redirect rules are needed.
-
----
-
-## Step 6 — Connect CORS
-
-Back on **Render → Environment**, set:
+Re-running is safe (idempotent — duplicates are skipped). Verify:
 ```
-CORS_ORIGIN = https://<your-site>.netlify.app
+curl 'https://<your-project>.vercel.app/api/images?limit=3'
+# → JSON with items whose sources.* are R2 URLs
 ```
-(Redeploy or restart Render so it takes effect.)
 
 ---
 
-## Merge the feature branch to main
+## Step 6 — Verify the full stack
 
-The new code is on `feat/image-backend`. Before Netlify builds it from `main`,
-merge it (open a PR and merge, or fast-forward). Both Netlify and Render deploy
-from `main`.
-
----
-
-## Verify the full stack
-1. Open your Netlify URL — the homepage hero and the Recents galleries load.
-2. DevTools → Network: gallery JSON comes from the Render URL; images come from
-   the R2 URL; both 200.
-3. Adding a photo works against prod:
-   ```
-   curl -X POST https://<render-url>/api/admin/images \
-     -H "Authorization: Bearer $ADMIN_API_TOKEN" \
-     -F "file=@new.jpg" -F "category=fog" -F "isPublished=true"
-   ```
+1. Open your Vercel URL — the homepage hero and the Recents galleries load.
+2. DevTools → Network: gallery JSON comes from `/api/images` (same origin);
+   images come from the R2 URL; both 200.
+3. Adding/removing images works against prod (see below).
 
 ---
 
 ## Adding / removing images in production
-- **Add:** the `curl` above, or temporarily run `migrate:images` pointed at prod
-  (Step 4) for a batch.
-- **Remove:** `curl -X DELETE https://<render-url>/api/admin/images/<ID> \
-  -H "Authorization: Bearer $ADMIN_API_TOKEN"`. Find the ID via
-  `GET /api/images?category=…`.
+
+Ingestion is from the laptop (Step 5). For ad-hoc changes, the binary-free admin
+routes work fine over the serverless API:
+
+- **Publish/unpublish or edit metadata:**
+  ```
+  curl -X PATCH https://<project>.vercel.app/api/admin/images/<ID> \
+    -H "Authorization: Bearer $ADMIN_API_TOKEN" -H "Content-Type: application/json" \
+    -d '{"isPublished":true,"title":"Foggy morning"}'
+  ```
+- **Remove** (deletes the Supabase row + the R2 objects):
+  ```
+  curl -X DELETE https://<project>.vercel.app/api/admin/images/<ID> \
+    -H "Authorization: Bearer $ADMIN_API_TOKEN"
+  ```
+  Find the ID via `GET /api/images?category=…`.
+
+The multipart upload route `POST /api/admin/images` still exists for local dev,
+but on Vercel it will reject files over ~4.5 MB (the platform limit) — use the
+script instead.
 
 ---
 
-## Cost & cold-start notes
-- **Render free** sleeps after ~15 min idle. First hit after sleep takes ~30 s;
-  the Netlify-served page shell still appears instantly, only images pause.
-  Upgrade Render to a paid instance (~$7/mo) for always-on if it bothers you.
-- **Neon free** scales to zero but wakes in <1 s.
-- **R2 free**: 10 GB storage + free egress — far more than a portfolio needs.
-- Total for a hobby portfolio: **$0/month**.
+## Notes
+
+- **Serverless + Prisma:** the Prisma client is a module-level singleton
+  (`server/src/db/client.ts`), reused across warm invocations. The pooler
+  connection string keeps connection churn bounded.
+- **Sharp is lazy-loaded:** `imageProcessing.ts` requires Sharp on first use, so
+  a function that only serves reads never loads Sharp's native binary. Sharp
+  processing happens on your laptop during ingestion, not in the function.
+- **Function timeout:** Hobby plan caps functions at ~10 s (`maxDuration` in
+  `vercel.json`). Gallery reads and admin metadata/delete calls finish in well
+  under that. Pro raises it to 60 s.
+- **Cold starts:** the first request after idle spins up the function
+  (sub-second to a few seconds). The static frontend shell loads instantly from
+  the edge; only the first `/api` call waits for the warm-up.
+- **In-browser upload (optional):** if you later want an Upload button on the
+  live site, the path is a presigned-URL flow (browser PUTs the original straight
+  to R2, then a function processes it). The `ImageStorage.createSignedUploadUrl`
+  interface method is the intended hook; it is not implemented yet.
+- **R2 free:** 10 GB storage + free egress — far more than a portfolio needs.
+- **Total for a hobby portfolio:** **$0/month.**
 
 ## Updating the code later
-- Push to `main`. Netlify rebuilds the frontend; Render rebuilds the backend.
-- If you change the Prisma schema, `db push` in the Render start command applies
-  it automatically. (For tracked migrations on Postgres later, regenerate
-  migrations against a Postgres DB — out of scope for now.)
+- Push to your branch; Vercel rebuilds frontend + function on every deploy.
+- If you change the Prisma schema, re-run `prisma db push` against Supabase from
+  your laptop (Step 4) — the function does not migrate at runtime.
