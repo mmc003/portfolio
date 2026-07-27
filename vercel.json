@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "create-react-app",
-  "installCommand": "npm install && npm install --prefix server --include=dev",
+  "installCommand": "npm install --include=dev && npm install --prefix server --include=dev",
   "buildCommand": "node server/scripts/set-provider.js postgresql && cd server && npx prisma generate && npm run build && cd .. && npm run build",
   "outputDirectory": "build",
   "functions": {

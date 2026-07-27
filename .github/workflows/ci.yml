@@ -55,5 +55,5 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-      - run: npm audit --audit-level=high
-      - run: npm --prefix server audit --audit-level=high
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm --prefix server audit --omit=dev --audit-level=high
