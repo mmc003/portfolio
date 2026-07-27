@@ -117,12 +117,19 @@ You now have: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
 ## Step 4 — Create the database schema (run locally, once)
 
 The function only runs `prisma generate` (to build the client) — it does **not**
-run migrations. Create the tables on Supabase from your laptop:
+run migrations. Create the tables on Supabase from your laptop.
+
+> **Use the DIRECT connection (port 5432) here, not the pooler.** Prisma can't run
+> DDL (`db push`/migrations) through Supabase's transaction-mode pooler
+> (PgBouncer) — it errors on prepared statements. The pooler (port 6543) is only
+> for the runtime app (Step 5 + the Vercel function). Get the direct string from
+> Supabase → **Connect → Session mode** (`db.<ref>.supabase.co:5432`); percent-
+> encode any special characters in the password (`$`→`%24`, `+`→`%2B`, `/`→`%2F`).
 
 ```bash
 cd server
-export DATABASE_URL="postgresql://postgres.[ref]:[pw]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
-node scripts/set-provider.js postgresql && npx prisma db push
+export DATABASE_URL="postgresql://postgres:[PW]@db.<ref>.supabase.co:5432/postgres"
+node scripts/set-provider.js postgresql && npx prisma db push --accept-data-loss
 # restore local dev afterwards:
 node scripts/set-provider.js sqlite && npx prisma generate
 unset DATABASE_URL
@@ -140,8 +147,10 @@ unset DATABASE_URL
 > processing locally and uploads directly to R2 + Supabase. (See "Notes" for the
 > in-browser upload option if you want it later.)
 
-This uploads `src/imgs` into R2 and writes metadata to Supabase, using the same
-pipeline as live uploads. Run from `server/`, temporarily pointing at prod:
+This uploads everything under `src/imgs` into R2 and writes metadata to Supabase,
+using the same pipeline as live uploads. Run from `server/`, temporarily pointing
+at prod. (The script recurses into subfolders and uses the first folder name as
+the category — e.g. `src/imgs/homepage/*.jpg` → category `homepage`.)
 
 ```bash
 cd server
@@ -156,7 +165,6 @@ export S3_PUBLIC_BASE_URL="https://pub-abc123def.r2.dev"
 
 node scripts/set-provider.js postgresql && npx prisma generate
 npm run migrate:images -- --source ../src/imgs
-npm run migrate:images -- --source ../src/homepage --category homepage
 node scripts/set-provider.js sqlite && npx prisma generate
 
 unset DATABASE_URL STORAGE_DRIVER S3_ENDPOINT S3_REGION S3_BUCKET \
