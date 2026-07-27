@@ -50,7 +50,9 @@ export function createGalleryRouter(): Router {
         sort,
       });
 
-      res.set("Cache-Control", "public, max-age=60, s-maxage=300");
+      // No s-maxage/edge cache: the gallery must reflect adds/deletes promptly
+      // (after a reset or import). Browsers may cache 60s; a hard-refresh bypasses.
+      res.set("Cache-Control", "public, max-age=60");
       res.set("Vary", "Accept-Encoding");
       res.json({
         items: items.map((i) => toImageDTO(i, storage, prefix)),
@@ -68,7 +70,7 @@ export function createGalleryRouter(): Router {
       if (!image || !image.isPublished) {
         throw new HttpError(404, "Image not found", "not_found");
       }
-      res.set("Cache-Control", "public, max-age=300, s-maxage=600");
+      res.set("Cache-Control", "public, max-age=300");
       res.json(toImageDTO(image, storage, mediaUrlPrefix(req)));
     })
   );
