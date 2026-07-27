@@ -1,4 +1,4 @@
-/* Recents — unified thumbnail grid + lightbox
+/* Recents — masonry-style thumbnail gallery + lightbox
    See Recents.tsx and Lightbox.tsx.
 */
 
@@ -10,26 +10,29 @@
   padding: 1rem 0;
 }
 
+/* Masonry-style layout */
 .recents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  align-items: center;
-  gap: 0.75rem;
+  column-count: 4;
+  column-gap: 0.75rem;
   width: 100%;
   max-width: 1100px;
 }
 
 .recents-thumb {
-  display: block;
-  align-self: center;
+  display: inline-block;
   width: 100%;
   padding: 0;
-  margin: 0;
+  margin: 0 0 0.75rem;
   border: none;
   background: transparent;
   line-height: 0;
   cursor: pointer;
   overflow: hidden;
+
+  /* Keep each image together inside one column */
+  break-inside: avoid;
+  page-break-inside: avoid;
+
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
@@ -53,12 +56,31 @@
   height: auto;
 }
 
+/* Responsive column counts */
+@media (max-width: 900px) {
+  .recents-grid {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 650px) {
+  .recents-grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 420px) {
+  .recents-grid {
+    column-count: 1;
+  }
+}
+
 .recents-loading {
   color: #888;
   padding: 2rem;
 }
 
-/* Shared gallery states: empty, error, retry, and load more. */
+/* Shared gallery states: empty, error, retry, and load more */
 
 .gallery-error {
   display: flex;
