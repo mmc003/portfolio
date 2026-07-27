@@ -128,7 +128,7 @@ run migrations. Create the tables on Supabase from your laptop.
 
 ```bash
 cd server
-export DATABASE_URL="postgresql://postgres.wxevgnlznwnibfzaynfd:%24%2B-%2FUJvv5PS6f%2Fh@aws-0-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+export DATABASE_URL="postgresql://postgres:[PW]@db.<ref>.supabase.co:5432/postgres"
 node scripts/set-provider.js postgresql && npx prisma db push --accept-data-loss
 # restore local dev afterwards:
 node scripts/set-provider.js sqlite && npx prisma generate
