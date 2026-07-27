@@ -5,9 +5,12 @@
   "buildCommand": "node server/scripts/set-provider.js postgresql && cd server && npx prisma generate && npm run build && cd .. && npm run build",
   "outputDirectory": "build",
   "functions": {
-    "api/**/*.js": {
+    "api/index.js": {
       "maxDuration": 10,
       "includeFiles": "server/dist/**,server/node_modules/.prisma/**"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" }
+  ]
 }

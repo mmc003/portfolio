@@ -1,57 +1,76 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Recents.css";
-import CategoryGallery from "../components/CategoryGallery";
+import { useGallery } from "../hooks/useGallery";
+import ResponsiveImage from "../components/ResponsiveImage";
+import Lightbox from "../components/Lightbox";
 
-// Gallery is now API-driven (no Webpack require.context / bundled images).
-// Categories match the folder names used by the migration script.
+// Recents: ONE unified gallery — a responsive grid of small, fast-loading
+// thumbnails (the browser picks the 500px derivative via srcset). Click any
+// thumbnail to open a full-resolution lightbox (prev/next, keyboard, close).
+// Replaces the old per-category carousels. Images come from the "recents"
+// category, which the migration script assigns from src/imgs/recents.
 const Recents: React.FC = () => {
+  const { items, loading, error, hasMore, loadMore, retry } = useGallery({
+    category: "recents",
+    limit: 24,
+  });
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   return (
-    <div>
+    <div className="recents-view">
       <div className="subtitle">Recents</div>
-      <div className="recents-container">
-        <CategoryGallery
-          category="vancouver"
-          title={
-            <>
-              Van <br />
-              Vancouver, British Columbia <br />
-              Portra400
-            </>
-          }
-        />
 
-        <CategoryGallery
-          category="fog"
-          title={
-            <>
-              Fog <br />
-              UCSD <br />
-              Portra400
-            </>
-          }
-        />
+      <div className="recents-grid-wrap">
+        {loading && items.length === 0 && (
+          <div className="recents-loading" role="status" aria-busy="true">
+            Loading…
+          </div>
+        )}
 
-        <CategoryGallery
-          category="dujiangyan"
-          title={
-            <>
-              Dujiangyan <br /> Chengdu, China <br />
-              HP5400 Pushed 2 Stops
-            </>
-          }
-        />
+        {error && (
+          <div className="gallery-error" role="alert">
+            <span>Couldn’t load images.</span>
+            <button className="gallery-retry" onClick={retry}>
+              Retry
+            </button>
+          </div>
+        )}
 
-        <CategoryGallery
-          category="danang-boats"
-          title={
-            <>
-              Banana Boats <br />
-              Da Nang, Vietnam <br />
-              TMAX400 Pushed 2 Stops <br /> Colorplus200
-            </>
-          }
-        />
+        {!loading && !error && items.length === 0 && (
+          <div className="gallery-empty">No images yet.</div>
+        )}
+
+        {items.length > 0 && (
+          <div className="recents-grid">
+            {items.map((item, i) => (
+              <button
+                key={item.id}
+                type="button"
+                className="recents-thumb"
+                onClick={() => setOpenIndex(i)}
+                aria-label={`Open ${item.title || "image"} at full size`}
+              >
+                <ResponsiveImage item={item} sizes="240px" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {hasMore && !loading && (
+          <button className="gallery-loadmore" onClick={loadMore}>
+            Load more
+          </button>
+        )}
       </div>
+
+      {openIndex !== null && (
+        <Lightbox
+          items={items}
+          index={openIndex}
+          onClose={() => setOpenIndex(null)}
+          onNavigate={setOpenIndex}
+        />
+      )}
     </div>
   );
 };
